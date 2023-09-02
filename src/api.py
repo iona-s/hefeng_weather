@@ -2,9 +2,10 @@ from typing import Any, Dict, List, Union, Optional
 
 from aiohttp import ClientSession
 
-from .utils import logger
-from .models import CityInfo, NowWeather
+from .logger import logger
+from .exceptions import QueryFailedError
 from .config import HEFENG_KEY, FREE_SUBSCRIBE
+from .models import CityInfo, NowWeather, HourlyWeather
 
 RET_CODE_INFO = {
     '204': '请求成功，但你查询的地区暂时没有你需要的数据。',
@@ -22,32 +23,23 @@ async def _get(
     url: str,
     *,
     params: Optional[Dict[str, Any]],
-) -> Union[str, Dict]:
+) -> Dict:
     async with ClientSession() as session, session.get(
         url,
         params=params,
     ) as resp:
+        logger.debug(f'使用{url}查询{params}')
         if resp.status != 200:
-            logger.error(f'向{url}查询{params}失败，retcode:{resp.status}')
-            return '连接失败'
+            logger.error(f'查询失败 status code{resp.status}')
+            raise QueryFailedError('连接失败')
         resp_content = await resp.json()
+        logger.debug(f'返回值 {resp_content}')
         retcode = resp_content['code']
-        if retcode != 200:
-            return RET_CODE_INFO[retcode]
+        if retcode != '200':
+            retcode_info = RET_CODE_INFO[retcode]
+            logger.error(f'查询失败 retcode{retcode}{retcode_info}')
+            raise QueryFailedError(retcode_info)
         return resp_content
-
-
-async def get_now_weather(location: str) -> Union[str, NowWeather]:
-    url = (
-        f'https://'
-        f'{"dev"if FREE_SUBSCRIBE else ""}'
-        f'api.qweather.com/v7/weather/now'
-    )
-    params = {'key': HEFENG_KEY, 'location': location, 'lang': 'zh'}
-    ret = await _get(url, params=params)
-    if isinstance(ret, str):
-        return ret
-    return NowWeather.construct(**ret['now'])
 
 
 async def get_city_info(
@@ -68,9 +60,26 @@ async def get_city_info(
     if adm is None:
         params.pop('adm')
     ret = await _get(url, params=params)
-    if isinstance(ret, str):
-        return ret
-    city_infos = []
-    for city in ret['location']:
-        city_infos.append(CityInfo.construct(**city))
-    return city_infos
+    return [CityInfo.parse_obj(city) for city in ret['location']]
+
+
+async def get_now_weather(location: str) -> Union[str, NowWeather]:
+    url = (
+        f'https://'
+        f'{"dev"if FREE_SUBSCRIBE else ""}'
+        f'api.qweather.com/v7/weather/now'
+    )
+    params = {'key': HEFENG_KEY, 'location': location, 'lang': 'zh'}
+    ret = await _get(url, params=params)
+    return NowWeather.parse_obj(ret['now'])
+
+
+async def get_hourly_weather(location: str) -> Union[str, List[HourlyWeather]]:
+    url = (
+        f'https://'
+        f'{"dev"if FREE_SUBSCRIBE else ""}'
+        f'api.qweather.com/v7/weather/24h'
+    )
+    params = {'key': HEFENG_KEY, 'location': location, 'lang': 'zh'}
+    ret = await _get(url, params=params)
+    return [HourlyWeather.parse_obj(data) for data in ret['hourly']]

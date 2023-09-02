@@ -6,7 +6,7 @@ from nonebot import NoneBot
 from aiocqhttp import ActionFailed
 from aiocqhttp import Event as CQEvent
 
-from .utils import logger
+from .logger import logger
 from .config import SEND_MESSAGE_INTERVAL
 
 _sending_message = False
@@ -71,3 +71,4 @@ async def bot_send(
             target_id=target_id,
         ),
     )
+    await _run_pending_tasks()
