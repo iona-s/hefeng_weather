@@ -2,9 +2,9 @@ from typing import Any, Dict, List, Union, Optional
 
 from aiohttp import ClientSession
 
+from .config import config
 from .logger import logger
 from .exceptions import QueryFailedError
-from .config import HEFENG_KEY, FREE_SUBSCRIBE
 from .models import CityInfo, NowWeather, HourlyWeather
 
 RET_CODE_INFO = {
@@ -18,12 +18,17 @@ RET_CODE_INFO = {
     '500': '无响应或超时.',
 }
 
+BASE_PARAMS = {
+    'key': config.HEFENG_KEY,
+}
+
 
 async def _get(
     url: str,
     *,
-    params: Optional[Dict[str, Any]],
+    params: Optional[Dict[str, Any]] = None,
 ) -> Dict:
+    params = {**BASE_PARAMS, **(params or {})}
     async with ClientSession() as session, session.get(
         url,
         params=params,
@@ -51,7 +56,6 @@ async def get_city_info(
 ) -> Union[str, List[CityInfo]]:
     url = 'https://geoapi.qweather.com/v2/city/lookup'
     params = {
-        'key': HEFENG_KEY,
         'location': location,
         'adm': adm,
         'range': search_range,
@@ -66,10 +70,10 @@ async def get_city_info(
 async def get_now_weather(location: str) -> Union[str, NowWeather]:
     url = (
         f'https://'
-        f'{"dev"if FREE_SUBSCRIBE else ""}'
+        f'{"dev"if config.FREE_SUBSCRIBE else ""}'
         f'api.qweather.com/v7/weather/now'
     )
-    params = {'key': HEFENG_KEY, 'location': location, 'lang': 'zh'}
+    params = {'location': location, 'lang': 'zh'}
     ret = await _get(url, params=params)
     return NowWeather.parse_obj(ret['now'])
 
@@ -77,9 +81,9 @@ async def get_now_weather(location: str) -> Union[str, NowWeather]:
 async def get_hourly_weather(location: str) -> Union[str, List[HourlyWeather]]:
     url = (
         f'https://'
-        f'{"dev"if FREE_SUBSCRIBE else ""}'
+        f'{"dev"if config.FREE_SUBSCRIBE else ""}'
         f'api.qweather.com/v7/weather/24h'
     )
-    params = {'key': HEFENG_KEY, 'location': location, 'lang': 'zh'}
+    params = {'location': location, 'lang': 'zh'}
     ret = await _get(url, params=params)
     return [HourlyWeather.parse_obj(data) for data in ret['hourly']]

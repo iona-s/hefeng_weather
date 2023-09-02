@@ -6,12 +6,19 @@ from nonebot import NoneBot
 from aiocqhttp import ActionFailed
 from aiocqhttp import Event as CQEvent
 
+from .config import config
 from .logger import logger
-from .config import SEND_MESSAGE_INTERVAL
 
 _sending_message = False
 _pending_message = []
-_interval_offset = 0.1 * SEND_MESSAGE_INTERVAL
+if config.SEND_MESSAGE_INTERVAL:
+    _interval_offset = 0.1 * config.SEND_MESSAGE_INTERVAL
+    _interval = (
+        config.SEND_MESSAGE_INTERVAL - _interval_offset,
+        config.SEND_MESSAGE_INTERVAL + _interval_offset,
+    )
+else:
+    _interval = None
 
 
 async def _send_message(
@@ -42,11 +49,10 @@ async def _run_pending_tasks():
     _sending_message = True
     while _pending_message:
         await _pending_message.pop(0)
-        if SEND_MESSAGE_INTERVAL:
+        if _interval is not None:
             await sleep(
                 uniform(
-                    SEND_MESSAGE_INTERVAL - _interval_offset,
-                    SEND_MESSAGE_INTERVAL + _interval_offset,
+                    *_interval,
                 ),
             )
     _sending_message = False

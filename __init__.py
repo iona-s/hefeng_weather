@@ -76,6 +76,6 @@ async def query_weather(bot: NoneBot, ev: CQEvent):
         await bot_send(bot, msg, ev=ev)
 
 
-@sv.on_prefix(['未来降雨'])
-async def future_precipitation(bot: NoneBot, ev: CQEvent):
-    pass
+# @sv.on_prefix(['未来降雨'])
+# async def future_precipitation(bot: NoneBot, ev: CQEvent):
+#     pass
