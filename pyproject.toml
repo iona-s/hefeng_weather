@@ -48,31 +48,36 @@ extra_standard_library = ["typing_extensions"]
 
 [tool.ruff]
 select = [
-    "E", "W", # pycodestyle
     "F",      # pyflakes
-    "UP",     # pyupgrade
+    "E", "W", # pycodestyle
     "N",      # pep8-naming
+    "D",      # pydocstyle
+    "UP",     # pyupgrade
+    "ASYNC",   # flake8-async
+    "B",      # flake8-bugbear
+    "A",      # flake8-builtins
+    "C4",     # flake8-comprehensions
+    "EM",     # flake8-errmsg
+    "ISC",    # flake8-implicit-str-concat
+    "PIE",    # flake8-pie
+    "T20",    # flake8-print
     "PYI",    # flask8-pyi
     "Q",      # flake8-quotes
-    "PTH",    # flake8-use-pathlib
-    "RET",    # flake8-return
     "RSE",    # flake8-raise
-    "T20",    # flake8-print
-    "PIE",    # flake8-pie
+    "RET",    # flake8-return
+    "SLF",    # flake8-self
     "SIM",    # flake8-simplify
-    "ISC",    # flake8-implicit-str-concat
-    "C4",     # flake8-comprehensions
+    "PTH",    # flake8-use-pathlib
     "COM",    # flake8-commas
-    "A",      # flake8-builtins
-    "B",      # flake8-bugbear
-    "ASYNC"   # flake8-async
 ]
-ignore = ["E402", "B008", "F403", "F405", "RET505"]
-
+ignore = ["E402", "D100", "D415"]
 line-length = 79
 target-version = "py38"
+show-fixes = true
+
+[tool.ruff.pydocstyle]
+convention = "google"
 
 [tool.ruff.flake8-quotes]
 inline-quotes = "single"
 multiline-quotes = "single"
-docstring-quotes = "double"

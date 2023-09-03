@@ -66,8 +66,10 @@ async def bot_send(
     target_type: Literal['group', 'private'] = 'group',
     target_id: Optional[Union[int, str]] = None,
 ):
+    """bot发送消息的封装，用于控制消息发送频率，现在已意义不大"""
     if ev is None and target_id is None:
-        raise Exception('未指定目标！')
+        error_msg = '发送消息未指定目标！'
+        raise AssertionError(error_msg)
     _pending_message.append(
         _send_message(
             bot,

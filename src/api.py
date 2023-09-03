@@ -5,7 +5,7 @@ from aiohttp import ClientSession
 from .config import config
 from .logger import logger
 from .exceptions import QueryFailedError
-from .models import CityInfo, NowWeather, HourlyWeather
+from .models import CityInfo, CityWeatherApi
 
 RET_CODE_INFO = {
     '204': '请求成功，但你查询的地区暂时没有你需要的数据。',
@@ -36,7 +36,8 @@ async def _get(
         logger.debug(f'使用{url}查询{params}')
         if resp.status != 200:
             logger.error(f'查询失败 status code{resp.status}')
-            raise QueryFailedError('连接失败')
+            msg = '连接失败'
+            raise QueryFailedError(msg)
         resp_content = await resp.json()
         logger.debug(f'返回值 {resp_content}')
         retcode = resp_content['code']
@@ -54,6 +55,7 @@ async def get_city_info(
     search_range: str = 'cn',
     result_number: int = 5,
 ) -> Union[str, List[CityInfo]]:
+    """使用城市id或经纬度查询城市信息"""
     url = 'https://geoapi.qweather.com/v2/city/lookup'
     params = {
         'location': location,
@@ -67,23 +69,31 @@ async def get_city_info(
     return [CityInfo.parse_obj(city) for city in ret['location']]
 
 
-async def get_now_weather(location: str) -> Union[str, NowWeather]:
+async def get_now_weather(
+    location: str,
+) -> Union[str, CityWeatherApi.NowWeather]:
+    """使用城市id或经纬度查询城市天气"""
     url = (
-        f'https://'
+        'https://'
         f'{"dev"if config.FREE_SUBSCRIBE else ""}'
-        f'api.qweather.com/v7/weather/now'
+        'api.qweather.com/v7/weather/now'
     )
     params = {'location': location, 'lang': 'zh'}
     ret = await _get(url, params=params)
-    return NowWeather.parse_obj(ret['now'])
+    return CityWeatherApi.NowWeather.parse_obj(ret['now'])
 
 
-async def get_hourly_weather(location: str) -> Union[str, List[HourlyWeather]]:
+async def get_hourly_weather(
+    location: str,
+) -> Union[str, List[CityWeatherApi.HourlyWeather]]:
+    """使用城市id或经纬度查询小时天气"""
     url = (
-        f'https://'
+        'https://'
         f'{"dev"if config.FREE_SUBSCRIBE else ""}'
-        f'api.qweather.com/v7/weather/24h'
+        'api.qweather.com/v7/weather/24h'
     )
     params = {'location': location, 'lang': 'zh'}
     ret = await _get(url, params=params)
-    return [HourlyWeather.parse_obj(data) for data in ret['hourly']]
+    return [
+        CityWeatherApi.HourlyWeather.parse_obj(data) for data in ret['hourly']
+    ]

@@ -2,12 +2,16 @@ from typing import Optional
 
 
 class QueryFailedError(Exception):
-    def __init__(self, message: Optional[str] = None):
+    """api查询失败"""
+
+    def __init__(self, message: Optional[str] = None):  # noqa: D107
         if message is not None:
             super().__init__(message)
 
 
 class InvalidArgumentError(Exception):
-    def __init__(self, message: Optional[str] = None):
+    """用户输入的指令有误"""
+
+    def __init__(self, message: Optional[str] = None):  # noqa: D107
         if message is not None:
             super().__init__(message)
