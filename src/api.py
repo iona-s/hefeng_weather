@@ -1,9 +1,11 @@
 from typing import Any, Dict, List, Union, Optional
 
 from aiohttp import ClientSession
+from pydantic import parse_obj_as
 
 from .config import config
 from .logger import logger
+from .api_cache import use_cache
 from .exceptions import QueryFailedError
 from .models import CityInfo, CityWeatherApi
 
@@ -48,13 +50,14 @@ async def _get(
         return resp_content
 
 
+@use_cache(List[CityInfo], config.CITY_INFO_TTL)
 async def get_city_info(
     location: str,
     *,
     adm: str = None,
     search_range: str = 'cn',
     result_number: int = 5,
-) -> Union[str, List[CityInfo]]:
+) -> List[CityInfo]:
     """使用城市id或经纬度查询城市信息"""
     url = 'https://geoapi.qweather.com/v2/city/lookup'
     params = {
@@ -65,13 +68,14 @@ async def get_city_info(
     }
     if adm is None:
         params.pop('adm')
-    ret = await _get(url, params=params)
-    return [CityInfo.parse_obj(city) for city in ret['location']]
+    resp = await _get(url, params=params)
+    return parse_obj_as(List[CityInfo], resp['location'])
 
 
+@use_cache(CityWeatherApi.NowWeather, config.WEATHER_INFO_TTL)
 async def get_now_weather(
     location: str,
-) -> Union[str, CityWeatherApi.NowWeather]:
+) -> CityWeatherApi.NowWeather:
     """使用城市id或经纬度查询城市天气"""
     url = (
         'https://'
@@ -83,6 +87,7 @@ async def get_now_weather(
     return CityWeatherApi.NowWeather.parse_obj(ret['now'])
 
 
+@use_cache(List[CityWeatherApi.HourlyWeather], config.WEATHER_INFO_TTL)
 async def get_hourly_weather(
     location: str,
 ) -> Union[str, List[CityWeatherApi.HourlyWeather]]:

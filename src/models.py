@@ -4,7 +4,16 @@ from typing import Literal, Optional
 from pydantic import Field, BaseModel
 
 
-class CityInfo(BaseModel):
+class ConfigedBaseModel(BaseModel):
+    """配置化的基础模型"""
+
+    class Config:
+        """配置"""
+
+        allow_population_by_field_name = True
+
+
+class CityInfo(ConfigedBaseModel):
     """城市信息"""
 
     name: str = Field(description='地区/城市名称')
@@ -31,7 +40,7 @@ class CityInfo(BaseModel):
 class CityWeatherApi:
     """城市天气系列api"""
 
-    class NowWeather(BaseModel):
+    class NowWeather(ConfigedBaseModel):
         """当前天气"""
 
         observation_time: datetime = Field(
@@ -70,7 +79,7 @@ class CityWeatherApi:
             description='露点温度。可能为空',
         )
 
-    class DailyWeather(BaseModel):
+    class DailyWeather(ConfigedBaseModel):
         """每日天气"""
 
         date: datetime = Field(alias='fxDate', description='预报日期')
@@ -178,7 +187,7 @@ class CityWeatherApi:
             description='云量，百分比数值。可能为空',
         )
 
-    class HourlyWeather(BaseModel):
+    class HourlyWeather(ConfigedBaseModel):
         """小时天气"""
 
         time: datetime = Field(alias='fxTime', description='预报时间')
@@ -218,7 +227,7 @@ class CityWeatherApi:
 class BlockWeatherApi:
     """格点天气系列api"""
 
-    class NowWeather(BaseModel):
+    class NowWeather(ConfigedBaseModel):
         """当前天气"""
 
         time: datetime = Field(alias='obsTime', description='数据观测时间')
@@ -264,7 +273,7 @@ class BlockWeatherApi:
             description='露点温度。可能为空',
         )
 
-    class DailyWeather(BaseModel):
+    class DailyWeather(ConfigedBaseModel):
         """每日天气"""
 
         date: datetime = Field(alias='fxDate', description='预报日期')
@@ -337,7 +346,7 @@ class BlockWeatherApi:
             description='大气压强，百帕',
         )
 
-    class HourlyWeather(BaseModel):
+    class HourlyWeather(ConfigedBaseModel):
         """小时天气"""
 
         time: datetime = Field(alias='fxTime', description='预报时间')
@@ -384,7 +393,7 @@ class BlockWeatherApi:
         )
 
 
-class MinutePrecipitation(BaseModel):
+class MinutePrecipitation(ConfigedBaseModel):
     """分钟降雨量"""
 
     time: datetime = Field(alias='fxTime', description='预报时间')
@@ -397,7 +406,7 @@ class MinutePrecipitation(BaseModel):
     )
 
 
-class WeatherIndex(BaseModel):
+class WeatherIndex(ConfigedBaseModel):
     """天气指数"""
 
     date: datetime = Field(alias='fxDate', description='预报日期')
@@ -414,7 +423,7 @@ class WeatherIndex(BaseModel):
 class AirQuality:
     """空气质量"""
 
-    class AirQualityNow(BaseModel):
+    class AirQualityNow(ConfigedBaseModel):
         """当前空气质量"""
 
         time: datetime = Field(
@@ -434,7 +443,7 @@ class AirQuality:
         co: str = Field(description='一氧化碳')
         o3: str = Field(description='臭氧')
 
-    class AirQualityStation(BaseModel):
+    class AirQualityStation(ConfigedBaseModel):
         """空气质量检测站信息"""
 
         time: datetime = Field(
@@ -457,7 +466,7 @@ class AirQuality:
         o3: str = Field(description='臭氧')
 
 
-class WeatherAlert(BaseModel):
+class WeatherAlert(ConfigedBaseModel):
     """天气预警"""
 
     id: str = Field(  # noqa: A003

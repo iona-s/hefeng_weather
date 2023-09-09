@@ -14,6 +14,8 @@ class Config(BaseModel):
     HEFENG_KEY: str = ''
     FREE_SUBSCRIBE: bool = True
     SEND_MESSAGE_INTERVAL: float = 0.5
+    CITY_INFO_TTL: int = 86400
+    WEATHER_INFO_TTL: int = 600
 
     @classmethod
     def load(cls) -> 'Config':
