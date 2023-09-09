@@ -56,7 +56,7 @@ class CityWeatherApi:
         weather_description: str = Field(alias='text', description='天气状况')
         wind_degress: int = Field(alias='wind360', description='风向360角度')
         wind_direction: str = Field(alias='windDir', description='风向')
-        wind_scale: int = Field(alias='windScale', description='风力等级')
+        wind_scale: str = Field(alias='windScale', description='风力等级')
         wind_speed: int = Field(
             alias='windSpeed',
             description='风速，公里/小时',
@@ -140,7 +140,7 @@ class CityWeatherApi:
             alias='windDirDay',
             description='预报白天风向',
         )
-        wind_scale_day: int = Field(
+        wind_scale_day: str = Field(
             alias='windScaleDay',
             description='预报白天风力等级',
         )
@@ -156,7 +156,7 @@ class CityWeatherApi:
             alias='windDirNight',
             description='预报夜间当天风向',
         )
-        wind_scale_night: int = Field(
+        wind_scale_night: str = Field(
             alias='windScaleNight',
             description='预报夜间风力等级',
         )
@@ -196,7 +196,7 @@ class CityWeatherApi:
         weather_description: str = Field(alias='text', description='天气状况')
         wind_degress: int = Field(alias='wind360', description='风向360角度')
         wind_direction: str = Field(alias='windDir', description='风向')
-        wind_scale: int = Field(alias='windScale', description='风力等级')
+        wind_scale: str = Field(alias='windScale', description='风力等级')
         wind_speed: int = Field(
             alias='windSpeed',
             description='风速，公里/小时',
@@ -245,7 +245,7 @@ class BlockWeatherApi:
         )
         wind_degress: int = Field(alias='wind360', description='风向360角度')
         wind_direction: str = Field(alias='windDir', description='风向')
-        wind_scale: int = Field(alias='windScale', description='风力等级')
+        wind_scale: str = Field(alias='windScale', description='风力等级')
         wind_speed: int = Field(
             alias='windSpeed',
             description='风速，公里/小时',
@@ -309,7 +309,7 @@ class BlockWeatherApi:
             alias='windDirDay',
             description='预报白天风向',
         )
-        wind_scale_day: int = Field(
+        wind_scale_day: str = Field(
             alias='windScaleDay',
             description='预报白天风力等级',
         )
@@ -325,7 +325,7 @@ class BlockWeatherApi:
             alias='windDirNight',
             description='预报夜间当天风向',
         )
-        wind_scale_night: int = Field(
+        wind_scale_night: str = Field(
             alias='windScaleNight',
             description='预报夜间风力等级',
         )
@@ -364,7 +364,7 @@ class BlockWeatherApi:
         )
         wind_degress: int = Field(alias='wind360', description='风向360角度')
         wind_direction: str = Field(alias='windDir', description='风向')
-        wind_scale: int = Field(alias='windScale', description='风力等级')
+        wind_scale: str = Field(alias='windScale', description='风力等级')
         wind_speed: int = Field(
             alias='windSpeed',
             description='风速，公里/小时',

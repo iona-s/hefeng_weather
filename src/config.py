@@ -13,9 +13,9 @@ class Config(BaseModel):
 
     HEFENG_KEY: str = ''
     FREE_SUBSCRIBE: bool = True
-    SEND_MESSAGE_INTERVAL: float = 0.5
     CITY_INFO_TTL: int = 86400
     WEATHER_INFO_TTL: int = 600
+    SEND_MESSAGE_INTERVAL: float = 0
 
     @classmethod
     def load(cls) -> 'Config':
@@ -30,6 +30,7 @@ class Config(BaseModel):
         if not cfg.HEFENG_KEY:
             error_msg = '和风天气key为空，天气功能将无法使用'
             raise ValueError(error_msg)
+        cfg.save()
         return cfg
 
     def save(self) -> None:

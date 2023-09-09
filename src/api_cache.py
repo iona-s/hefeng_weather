@@ -1,15 +1,14 @@
 from time import time
 from json import dumps
-from pathlib import Path
 from functools import wraps
+from inspect import signature
 from typing import Type, TypeVar, Optional
 
 from pydantic import BaseModel, parse_file_as
 
 from .logger import logger
-from .utils import generate_cache_name
-
-CACHE_DIR = Path(__file__).resolve().parent.parent / 'cache'
+from .define import CACHE_DIR
+from .utils import DateTimeEncoder, generate_cache_name
 
 T = TypeVar('T')
 
@@ -37,19 +36,34 @@ def use_cache(model: Type[T], ttl: int):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            cache_name = generate_cache_name(func.__name__, kwargs)
+            cache_name = generate_cache_name(
+                func.__name__,
+                signature(func).bind(*args, **kwargs).arguments,
+            )
             cache = get_cache(cache_name, model, ttl)
-            logger.debug(f'{func.__name__} 使用缓存 {cache}')
             if cache is None:
                 cache = await func(*args, **kwargs)
                 if isinstance(cache, BaseModel):
                     data = cache.json()
                 # elif isinstance(cache, list):
                 else:  # 目前其余情况只有List[Model]
-                    data = dumps([data.dict() for data in cache])
+                    data = dumps(
+                        [data.dict() for data in cache],
+                        cls=DateTimeEncoder,
+                    )
                 save_cache(cache_name, data)
+            else:
+                logger.debug(f'{func.__name__} 使用缓存')
             return cache
 
         return wrapper
 
     return decorator
+
+
+# 还没想好怎么用
+# def clear_cache(name: str) -> None:
+#     """清除缓存"""
+#     cache_file = CACHE_DIR / f'{name}.cache'
+#     if cache_file.exists():
+#         cache_file.unlink()
