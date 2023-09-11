@@ -198,7 +198,7 @@ async def set_default_city(bot: NoneBot, ev: CQEvent):  # noqa: D103
             '[和风天气的城市id]'
         )
     except QueryFailedError as e:
-        msg = f'添加失败，{e}'
+        msg = f'设置失败，{e}'
     finally:
         await bot_send(bot, msg, ev=ev)
 
@@ -281,8 +281,10 @@ async def hourly_weather_forcast():
                 msg = (
                     f'-> {hourly_data.time.strftime("%H:%M")} '
                     f'{hourly_data.weather_description} '
-                    f'{hourly_data.precipitation}mm '
-                    f'{hourly_data.precipitation_probability}%'
+                    f'{hourly_data.temperature}℃ '
+                    f'湿度{hourly_data.humidity}% '
+                    f'云量{hourly_data.cloud_amount}% '
+                    f'降水概率{hourly_data.precipitation_probability}%'
                 )
                 detail_msg_list.append(msg)
             msg_list.append('\n'.join(detail_msg_list))
